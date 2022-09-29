@@ -12,16 +12,14 @@ import socket
 KV = """
 MyBL:
 	orientation: "vertical"
-	size_hint: (0.95, 0.95)
-	pos_hint: {"center_x": 0.5, "center_y":0.5}
-
+    
 	Label:
-		font_size: "15sp"
+		font_size: "20sp"
 		multiline: True
 		text_size: self.width*0.98, None
 		size_hint_x: 1.0
-		size_hint_y: None
-		height: self.texture_size[1] + 15
+		size_hint_y: 0.6
+		height: self.texture_size[1] 
 		text: root.data_label
 		markup: True
 		on_ref_press: root.linki()		
@@ -30,9 +28,10 @@ MyBL:
 
 	TextInput:
 		id: Inp
+		font_size: "20sp"
 		multiline: False
 		padding_y: (5,5)
-		size_hint: (1, 0.5)
+		size_hint: (1, 0.1)
 		on_text: app.process()
 		
 
@@ -40,22 +39,23 @@ MyBL:
 		text: "Virtualbox"
 		bold: True
 		background_color:'#00FFCE'
-		size_hint: (1,0.5)
-		on_press: root.callback2()
-
+		size_hint: (1,0.2)
+		on_press: root.callback1()
+		
 	Button:
-		text: "Случайный"
+		text: "Start PC"
 		bold: True
 		background_color:'#00FFCE'
-		size_hint: (1,0.5)
-		on_press: root.callback3()
+		size_hint: (1,0.2)
+		on_press: root.callback2()
+
 
 	Button:
 		text: "Отправить"
 		bold: True
 		background_color:'#00FFCE'
-		size_hint: (1,0.5)
-		on_press: root.callback4()
+		size_hint: (1,0.2)
+		on_press: root.callback3()
 
 """
 
@@ -65,8 +65,8 @@ class MyBL(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        SERVER = "192.168.10.96"
-        PORT = 1488
+        SERVER = "192.168.10.94"
+        PORT = 7890
 
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client.connect((SERVER, PORT))
@@ -74,15 +74,15 @@ class MyBL(BoxLayout):
 
         threading.Thread(target=self.get_data).start()
 
-    def callback2(self):
+    def callback1(self):
         print("Запуск Virtualbox")
         self.client.sendall(bytes("virtualbox", 'UTF-8'))
 
-    def callback3(self):
-        print("Случайный")
-        self.client.sendall(bytes("Случайный", 'UTF-8'))
+    def callback2(self):
+        print("Запуск ПК")
+        self.client.sendall(bytes("startpc", 'UTF-8'))
 
-    def callback4(self):
+    def callback3(self):
         print("Отправить")
         self.client.sendall(bytes(self.ids.Inp.text, 'UTF-8'))
 
