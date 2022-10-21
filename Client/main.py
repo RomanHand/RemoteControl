@@ -12,7 +12,7 @@ import socket
 KV = """
 MyBL:
 	orientation: "vertical"
-    
+
 	Label:
 		font_size: "20sp"
 		multiline: True
@@ -33,7 +33,7 @@ MyBL:
 		padding_y: (5,5)
 		size_hint: (1, 0.1)
 		on_text: app.process()
-		
+
 
 	Button:
 		text: "Virtualbox"
@@ -41,7 +41,7 @@ MyBL:
 		background_color:'#00FFCE'
 		size_hint: (1,0.2)
 		on_press: root.callback1()
-		
+
 	Button:
 		text: "Start PC"
 		bold: True
@@ -65,7 +65,7 @@ class MyBL(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        SERVER = "192.168.10.94"
+        SERVER = "5.100.121.118"
         PORT = 7890
 
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -75,8 +75,8 @@ class MyBL(BoxLayout):
         threading.Thread(target=self.get_data).start()
 
     def callback1(self):
-        print("Запуск Virtualbox")
-        self.client.sendall(bytes("virtualbox", 'UTF-8'))
+        print("Запуск/перезагрузка WEB-сервера!")
+        self.client.sendall(bytes("restartapache", 'UTF-8'))
 
     def callback2(self):
         print("Запуск ПК")
