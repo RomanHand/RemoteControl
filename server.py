@@ -5,15 +5,33 @@ from wakeonlan import send_magic_packet
 import yaml
 import sys
 import logging
+import requests
+
 
 # Блок функций исполняющих действия
 
 def startpc():
-    send_magic_packet('18:c0:4d:8e:c8:5a')
+    send_magic_packet(mac)
 
 def restartapache():
     os.system('systemctl restart apache2')
 
+def getwether(s_city_name):
+    try:
+
+        wet1 = ("Город: " + s_city_name)
+        res = requests.get("http://api.openweathermap.org/data/2.5/weather",
+                           params={'q': s_city_name, 'units': 'metric', 'lang': 'ru', 'APPID': appid})
+        data = res.json()
+        wet2 = ("Погода: " + data['weather'][0]['description'])
+        wet3 = ("Темп: " + str(data['main']['temp']))
+        wet4 = ("Мин: " + str(data['main']['temp_min']))
+        wet5 = ("Макс: " + str(data['main']['temp_max']))
+
+        wet = [wet1, wet2, wet3, wet4, wet5]
+        return wet
+    except:
+        return 1
 
 # Жизненый цикл подключения
 class ClientThread(threading.Thread):
@@ -38,9 +56,19 @@ class ClientThread(threading.Thread):
             elif msg == 'startpc':
                 self.csocket.send(bytes('Магический пакет отправлен!', 'UTF-8'))
                 startpc()
+
             elif msg == 'restartapache':
                 self.csocket.send(bytes('Apache2 перезапущен!', 'UTF-8'))
                 startpc()
+
+            elif msg == 'getwether':
+                s_city_name = "Vladivostok"
+                wether = getwether(s_city_name)
+                print(wether)
+                #wether_result = (wether[0] + "\n" + wether[1] + "\n" + wether[2] + "\n" + wether[3] + "\n" + wether[4])
+                self.csocket.send(bytes("123" , 'UTF-8'))
+                print(wether)
+
             else:
                 self.csocket.send(bytes('Команда не найдена:(', 'UTF-8'))
 
@@ -86,6 +114,10 @@ if __name__ == "__main__":
         HOST = configs['host']
         PORT = configs['port']
         USERNAME = configs['username']
+        mac = configs['mac']
+        api_yandex = configs['api_yandex']
+        appid = configs['appid']
+        srcyaml.close()
     except: logging.error("Проблема с конфигом!")
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
