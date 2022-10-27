@@ -1,5 +1,7 @@
 host : 192.168.10.90
 port : 7890
-username : Господин
+username : Хозяин
 mac : 18:c0:4d:8e:c8:5a
-appid : 0
+appid :
+usereltex:
+passwdeltex:

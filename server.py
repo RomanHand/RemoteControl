@@ -6,6 +6,7 @@ import yaml
 import sys
 import logging
 import requests
+import json
 
 
 # Блок функций исполняющих действия
@@ -13,8 +14,40 @@ import requests
 def startpc():
     send_magic_packet(mac)
 
-def restartapache():
-    os.system('systemctl restart apache2')
+def startrozetka(vibor):
+    auth = 'https://eltexhome.ru/api/v1/oauth2/token'
+    url = "https://eltexhome.ru/api/v1/ctl/a144a1d2-e4c8-4bfa-9fea-c2f11f247a50/devices/ddc00248-2281-46c8-8eb6-2daa35959942/props/00250000_0"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:106.0) Gecko/20100101 Firefox/106.0",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "Authorization": "Basic d2ViLWNsaWVudDpwYXNzd29yZA==",
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-origin"
+    }
+    data = "username=roma25r%40gmail.com&password=roma284563&grant_type=password"
+    session = requests.Session()
+    reqauth = session.post(auth, data=data, headers=headers)
+    result = eval(reqauth.text)
+    bearer = result["access_token"]
+    var = {
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:106.0) Gecko/20100101 Firefox/106.0",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3",
+        "Authorization": "Bearer " + bearer,
+        "Content-Type": "application/json",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-origin"
+    }
+    if vibor:
+        vibor = "{\"value\":\"true\"}"
+    elif vibor == False:
+        vibor = "{\"value\":\"false\"}"
+    req = session.post(url, headers=var, data=vibor)
+
 
 def getwether(s_city_name):
     try:
@@ -57,9 +90,12 @@ class ClientThread(threading.Thread):
                 self.csocket.send(bytes('Магический пакет отправлен!', 'UTF-8'))
                 startpc()
 
-            elif msg == 'restartapache':
-                self.csocket.send(bytes('Apache2 перезапущен!', 'UTF-8'))
-                startpc()
+            elif msg == 'startrozetka on':
+                self.csocket.send(bytes('Розетка включена!', 'UTF-8'))
+                startrozetka(vibor=True)
+            elif msg == 'startrozetka off':
+                self.csocket.send(bytes('Розетка выключена!', 'UTF-8'))
+                startrozetka(vibor=False)
 
             elif msg == 'getwether':
                 s_city_name = "Vladivostok"
@@ -117,6 +153,8 @@ if __name__ == "__main__":
         mac = configs['mac']
         api_yandex = configs['api_yandex']
         appid = configs['appid']
+        passwdeltex = configs["passwdeltex"]
+        usereltex = configs["usereltex"]
         srcyaml.close()
     except: logging.error("Проблема с конфигом!")
 
