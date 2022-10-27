@@ -27,7 +27,7 @@ def startrozetka(vibor):
         "Sec-Fetch-Mode": "cors",
         "Sec-Fetch-Site": "same-origin"
     }
-    data = "username=roma25r%40gmail.com&password=roma284563&grant_type=password"
+    data = "username=roma25r%40gmail.com&password="+passwdeltex+"grant_type=password"
     session = requests.Session()
     reqauth = session.post(auth, data=data, headers=headers)
     result = eval(reqauth.text)
