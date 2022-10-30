@@ -1,5 +1,8 @@
 /oldfiles/
 /dockerfile/### Python template
+/rcs.service/
+/rcs.log/
+/remotecontrol.yaml/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
