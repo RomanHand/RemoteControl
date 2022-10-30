@@ -26,36 +26,53 @@ MyBL:
 
 
 
-	TextInput:
-		id: Inp
-		font_size: "20sp"
-		multiline: False
-		padding_y: (5,5)
-		size_hint: (1, 0.1)
-		on_text: app.process()
+	# TextInput:
+	# 	id: Inp
+	# 	font_size: "20sp"
+	# 	multiline: False
+	# 	padding_y: (5,5)
+	# 	size_hint: (1, 0.1)
+	# 	on_text: app.process()
 
+    BoxLayout:
+        Button:
+            text: "Включить Розетку"
+            bold: True
+            background_color:'#00FFCE'
+            size_hint: (0.5,0.15)
+            on_press: root.onroz()
+            
+            
+        Button:
+            text: "Выключить Розетку"
+            bold: True
+            background_color:'#00FFCE'
+            size_hint: (0.5,0.15)
+            on_press: root.offroz()
+		
 
-	Button:
-		text: "Virtualbox"
-		bold: True
-		background_color:'#00FFCE'
-		size_hint: (1,0.2)
-		on_press: root.callback1()
 
 	Button:
 		text: "Start PC"
 		bold: True
 		background_color:'#00FFCE'
-		size_hint: (1,0.2)
-		on_press: root.callback2()
+		size_hint: (1,0.15)
+		on_press: root.startpc()
 
-
-	Button:
-		text: "Отправить"
+    Button:
+		text: "Погода"
 		bold: True
 		background_color:'#00FFCE'
-		size_hint: (1,0.2)
-		on_press: root.callback3()
+		size_hint: (1,0.15)
+		on_press: root.pogoda()
+
+
+	# Button:
+	# 	text: "Отправить"
+	# 	bold: True
+	# 	background_color:'#00FFCE'
+	# 	size_hint: (1,0.2)
+	# 	on_press: root.callback3()
 
 """
 
@@ -65,26 +82,36 @@ class MyBL(BoxLayout):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        SERVER = "5.100.121.118"
+        # SERVER = "5.100.121.118"
+        SERVER = "192.168.10.90"
         PORT = 7890
 
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.client.connect((SERVER, PORT))
-        self.client.sendall(bytes("979879789", 'UTF-8'))
+        #self.client.sendall(bytes("979879789", 'UTF-8'))
 
         threading.Thread(target=self.get_data).start()
 
-    def callback1(self):
-        print("Запуск/перезагрузка WEB-сервера!")
-        self.client.sendall(bytes("restartapache", 'UTF-8'))
+    def onroz(self):
+        print("Запрос на включение отправлен!")
+        self.client.sendall(bytes("startrozetka on", 'UTF-8'))
 
-    def callback2(self):
+    def offroz(self):
+        print("Запрос на выключение отправлен!")
+        self.client.sendall(bytes("startrozetka off", 'UTF-8'))
+
+    def startpc(self):
         print("Запуск ПК")
         self.client.sendall(bytes("startpc", 'UTF-8'))
 
-    def callback3(self):
-        print("Отправить")
-        self.client.sendall(bytes(self.ids.Inp.text, 'UTF-8'))
+    def pogoda(self):
+        print("Запрос отправлен!")
+        self.client.sendall(bytes("getwether", 'UTF-8'))
+
+
+    # def callback3(self):
+    #     print("Отправить")
+    #     self.client.sendall(bytes(self.ids.Inp.text, 'UTF-8'))
 
     def get_data(self):
         while App.get_running_app().running:

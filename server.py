@@ -1,12 +1,10 @@
 #!/usr/bin/python3
-import os
 import socket, threading
 from wakeonlan import send_magic_packet
 import yaml
 import sys
 import logging
 import requests
-import json
 
 
 # Блок функций исполняющих действия
@@ -15,6 +13,14 @@ def startpc():
     send_magic_packet(mac)
 
 def startrozetka(vibor):
+    try:
+        with open(srcyaml, "r") as fh:
+            configs = yaml.safe_load(fh)
+        passwdeltex = configs["passwdeltex"]
+        usereltex = configs["usereltex"]
+        srcyaml.close()
+    except:
+        logging.error("Проблема с конфигом!")
     auth = 'https://eltexhome.ru/api/v1/oauth2/token'
     url = "https://eltexhome.ru/api/v1/ctl/a144a1d2-e4c8-4bfa-9fea-c2f11f247a50/devices/ddc00248-2281-46c8-8eb6-2daa35959942/props/00250000_0"
     headers = {
@@ -27,7 +33,8 @@ def startrozetka(vibor):
         "Sec-Fetch-Mode": "cors",
         "Sec-Fetch-Site": "same-origin"
     }
-    data = "username=roma25r%40gmail.com&password=roma284563&grant_type=password"
+    usereltex = usereltex.replace('@','%40')
+    data = str("username="+usereltex+"&password="+passwdeltex+"&grant_type=password")
     session = requests.Session()
     reqauth = session.post(auth, data=data, headers=headers)
     result = eval(reqauth.text)
@@ -47,11 +54,19 @@ def startrozetka(vibor):
     elif vibor == False:
         vibor = "{\"value\":\"false\"}"
     req = session.post(url, headers=var, data=vibor)
+    session.close()
 
 
-def getwether(s_city_name):
+def getwether():
     try:
-
+        with open(srcyaml, "r") as fh:
+            configs = yaml.safe_load(fh)
+        appid = configs['appid']
+        srcyaml.close()
+    except:
+        logging.error("Проблема с конфигом!")
+    try:
+        s_city_name = "Vladivostok"
         wet1 = ("Город: " + s_city_name)
         res = requests.get("http://api.openweathermap.org/data/2.5/weather",
                            params={'q': s_city_name, 'units': 'metric', 'lang': 'ru', 'APPID': appid})
@@ -63,8 +78,9 @@ def getwether(s_city_name):
 
         wet = [wet1, wet2, wet3, wet4, wet5]
         return wet
-    except:
-        return 1
+    except Exception as e:
+        print("Exception (weather):", e)
+        pass
 
 # Жизненый цикл подключения
 class ClientThread(threading.Thread):
@@ -98,12 +114,11 @@ class ClientThread(threading.Thread):
                 startrozetka(vibor=False)
 
             elif msg == 'getwether':
-                s_city_name = "Vladivostok"
-                wether = getwether(s_city_name)
-                print(wether)
-                #wether_result = (wether[0] + "\n" + wether[1] + "\n" + wether[2] + "\n" + wether[3] + "\n" + wether[4])
-                self.csocket.send(bytes("123" , 'UTF-8'))
-                print(wether)
+                wether = getwether()
+                #print(wether)
+                wether_result = str(wether[0] + "\n" + wether[1] + "\n" + wether[2] + "\n" + wether[3] + "\n" + wether[4])
+                self.csocket.send(bytes(str(wether_result), 'UTF-8'))
+                print(getwether())
 
             else:
                 self.csocket.send(bytes('Команда не найдена:(', 'UTF-8'))
@@ -151,8 +166,6 @@ if __name__ == "__main__":
         PORT = configs['port']
         USERNAME = configs['username']
         mac = configs['mac']
-        api_yandex = configs['api_yandex']
-        appid = configs['appid']
         passwdeltex = configs["passwdeltex"]
         usereltex = configs["usereltex"]
         srcyaml.close()
