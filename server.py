@@ -1,10 +1,12 @@
 #!/usr/bin/python3
+import os
 import socket, threading
 from wakeonlan import send_magic_packet
 import yaml
 import sys
 import logging
 import requests
+import json
 
 
 # Блок функций исполняющих действия
@@ -166,6 +168,8 @@ if __name__ == "__main__":
         PORT = configs['port']
         USERNAME = configs['username']
         mac = configs['mac']
+        api_yandex = configs['api_yandex']
+        appid = configs['appid']
         passwdeltex = configs["passwdeltex"]
         usereltex = configs["usereltex"]
         srcyaml.close()
