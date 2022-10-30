@@ -1,12 +1,11 @@
 #!/usr/bin/python3
-import os
 import socket, threading
 from wakeonlan import send_magic_packet
 import yaml
 import sys
 import logging
 import requests
-import json
+
 
 
 # Блок функций исполняющих действия
@@ -150,21 +149,20 @@ if __name__ == "__main__":
 
     # Обьявляем логи
     if debug:srclog = "rcs.log"
-    else: srclog = "/var/log/rcs.log"
+    else: srclog = "rcs.log"
 
     logging.basicConfig(filename="rcs.log")
 
 
     # Читаем конфиг
     if debug: srcyaml = 'remotecontrol.yaml'
-    else: srcyaml = '/etc/rcs/remotecontrol.yaml'
+    else: srcyaml = 'remotecontrol.yaml'
 
 
     # Назначение переменных из конфига
     try:
         with open(srcyaml, "r") as fh:
             configs = yaml.safe_load(fh)
-        HOST = configs['host']
         PORT = configs['port']
         USERNAME = configs['username']
         mac = configs['mac']
@@ -177,7 +175,7 @@ if __name__ == "__main__":
 
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server.bind((HOST, PORT))
+    server.bind(("", PORT))
 
     print("Сервер запущен, " + USERNAME + "!")
 
